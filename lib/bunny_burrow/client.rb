@@ -24,7 +24,9 @@ module BunnyBurrow
         persistence: false
       }
 
-      consumer = Bunny::Consumer.new(channel, DIRECT_REPLY_TO, SecureRandom.uuid)
+      queue = channel.queue(SecureRandom.uuid)
+
+      consumer = Bunny::Consumer.new(channel, DIRECT_REPLY_TO, queue)
       consumer.on_delivery do |_, _, received_payload|
         result = handle_delivery(details, received_payload)
       end

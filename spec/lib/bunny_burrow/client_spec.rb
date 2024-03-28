@@ -28,11 +28,13 @@ describe BunnyBurrow::Client do
     let(:routing_key)    { 'routing.key' }
     let(:payload)        { 'payload' }
     let(:topic_exchange) { double 'topic exchange' }
+    let(:queue)          { double Bunny::Queue }
 
     before(:each) do
       allow(Bunny::Consumer).to receive(:new).and_return(consumer)
       allow(channel).to receive(:topic).and_return(topic_exchange)
       allow(channel).to receive(:basic_consume_with)
+      allow(channel).to receive(:queue).and_return(queue)
       allow(consumer).to receive(:on_delivery)
       allow(subject).to receive(:log)
       allow(topic_exchange).to receive(:publish)
@@ -92,7 +94,7 @@ describe BunnyBurrow::Client do
       end
 
       it 'creates a consumer to consume the reply-to pseudo-queue' do
-        expect(Bunny::Consumer).to receive(:new).with(channel, BunnyBurrow::Client::DIRECT_REPLY_TO, an_instance_of(String))
+        expect(Bunny::Consumer).to receive(:new).with(channel, BunnyBurrow::Client::DIRECT_REPLY_TO, queue)
         subject.publish request, routing_key
       end
 
@@ -162,4 +164,3 @@ describe BunnyBurrow::Client do
     end
   end # describe '#shutdown'
 end # describe BunnyBurrow::Client
-
